@@ -1,9 +1,20 @@
 
 
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
+
+    const updateCurrentDomain = (domain) => {
+        document.getElementById('currentDomain').innerText = domain;
+    }
+
+
+    
     switch (msg.command){
         case "couponsReceived":
             // Hey, coupons have been received. Update the interface trough javascript.
+            
+            break;
+        case "domainUpdated":
+            updateCurrentDomain(msg.data.domain)
             break;
     }
 });
@@ -12,8 +23,12 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
 
 window.addEventListener('load', ()=> {
     // Bind all event listeners to buttons here.
+
     
 });
+
+
+
 
 
 
@@ -34,7 +49,7 @@ var submitCoupon_callback = function(resp, domain){
 var parseCoupons = function(coupons, domain){
     try{
         var couponHTML = '';
-        for (var key in coupons ){
+        for (var key in coupons){
             var coupon = coupons[key];
             couponHTML += '<li><span class="code">'+coupon.code+'</span>'
             +'<p>➡️'+coupon.description+'</p></li>';

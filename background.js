@@ -5,45 +5,41 @@ var LAST_KNOWN_DOMAIN = undefined;
 
 
 
-/**
- * Awaitable function as it returns a Promise. Can be invoked even with "await" (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)
- * Or with primitive functions .then() and .catch() (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch)
- * @param {string} domain 
- */
-const fetchCoupons = (domain) => {
-    return new Promise((resolve)=> {
-        chrome.runtime.sendMessage({command: "fetch", data: {domain: domain}}, (response) => {
-            resolve(response.data);
-        })
-    });
-    
-}
-
-
-
-const checkForCoupons = () => {
-    fetchCoupons.then((coupons)=> {
-        // Check if there are any coupons. Should we update the interface?
-        if (true)
-            chrome.runtime.sendMessage({command:'couponsFetched', data:{coupons}});
-    })
-}
-
-
 const onUrlChanged = (url) => {
     // Retrieve domain 
-    const domain = url.replace('http://', '').replace('https://', '').replace('www.', '').split(/[/?#]/)[0];
+    
+    window.domain = url.replace('http://', '').replace('https://', '').replace('www.', '').split(/[/?#]/)[0];
+    
     if (domain !== LAST_KNOWN_DOMAIN){
         // Here we want to trigger coupon parses if the domain has changed
         LAST_KNOWN_DOMAIN = domain;
-        checkForCoupons();
+        // Inform the secondary background script that we want to fetch coupons for the current page
+        // chrome.runtime.sendMessage({command: "fetch", data: {domain: domain}}, (result) => {
+        //     // Validate coupons response - did we receive any?
+        //     if (status === "success"){
+        //         console.log('Successfully retrieved coupons')
+        //         chrome.runtime.sendMessage({command:'couponsFetched', data:{ coupons: data.coupons}});
+        //     }
+
+        // });
+
+        // // Notify domain updated
+        chrome.runtime.sendMessage({command: "domainUpdated", data: {domain: domain}}, (result)=> {
+            
+        });
     }
 }
+
+
 
 
 /**
  * Append an event listener to page updates
  */
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    changeInfo.url && onUrlChanged(changeInfo.url);
+    if ( changeInfo.url){
+        onUrlChanged(changeInfo.url);
+        return true;
+    }
+    
 });

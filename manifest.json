@@ -8,7 +8,7 @@
         "tabs"
     ],
     "background": {
-        "page": "background.html",
+        "scripts": ["firebase-app.js", "firebase-database.js", "background.js", "firebase.js"],
         "persistent": true
     },
     "manifest_version": 2,
