@@ -1,0 +1,20 @@
+{
+    "name": "Rabatkode finder",
+    "version": "0.1",
+    "description": "Vi finder nogle skide gode rabatkoder",
+    "permissions": [
+        "activeTab",
+        "<all_urls>",
+        "tabs"
+    ],
+    "background": {
+        "page": "background.html",
+        "persistent": true
+    },
+    "manifest_version": 2,
+    "browser_action": {
+        "default_title": "Rabatkode",
+        "default_popup": "popup.html"
+    },
+    "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'"
+}
