@@ -4,6 +4,10 @@ const Environment = {
   OBSERVING_TAB_ID_TO_CLOSE: undefined,
 };
 
+
+
+
+
 const onUrlChanged = (url) => {
   // Retrieve domain
 
@@ -21,6 +25,7 @@ const onUrlChanged = (url) => {
     setTimeout(()=> {
       if (!updated){
         chrome.browserAction.setBadgeText({ text: "0" }); // Show extension badge suggesting how many coupons there are;
+        chrome.browserAction.setIcon({path: "Images/Disabled.png"});
         chrome.runtime.sendMessage({
           command: "couponsFetched",
           data: { coupons: [] },
@@ -36,6 +41,7 @@ const onUrlChanged = (url) => {
       if (Array.isArray(coupons)) {
         console.log("Successfully retrieved coupons");
         chrome.browserAction.setBadgeText({ text: coupons.length.toString() }); // Show extension badge suggesting how many coupons there are;
+        chrome.browserAction.setIcon({path: "Images/Icon.png"});
         chrome.runtime.sendMessage({
           command: "couponsFetched",
           data: { coupons },
@@ -116,6 +122,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
 });
 
 chrome.browserAction.setBadgeText({ text: "0" }); // Show extension badge suggesting how many coupons there are;
+chrome.browserAction.setIcon({path: "Images/Disabled.png"});
 chrome.runtime.sendMessage({
   command: "couponsFetched",
   data: { coupons: [] },

@@ -4,7 +4,7 @@
     "description": "Rabatta er et værktøj lavet til at finde de bedste rabatkoder når du browser danske webshops",
     "icons": 
     { 
-        "16": "/images/icon.png"
+        "16": "/Images/Icon.png"
     },
     "permissions": [
         "activeTab",
@@ -20,5 +20,8 @@
         "default_title": "Rabatkode",
         "default_popup": "popup.html"
     },
-    "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'"
+    "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
+    "web_accessible_resources": [
+        "Images/*.png"
+    ]
 }
