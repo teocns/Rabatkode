@@ -1,37 +1,91 @@
 
 
-chrome.runtime.onMessage.addListener((msg, sender, response) => {
 
-    const updateCurrentDomain = (domain) => {
-        document.getElementById('currentDomain').innerText = domain;
+/**
+ * Generates a coupon list into the popup's HTML
+ * @param {string[]} coupon 
+ */
+const updateAvailableCoupons = (coupon) => {
+    const coupons = Array.isArray(coupon) || [coupon]; // Force into an array, even if it's just one element.
+    // When multiple coupons / website system is implemented, should create multiple coupon rows.
+    const couponsListContainer = document.getElementById('couponsList');
+    console.log(document.readyState)
+    // Remove all elder available coupons
+    while (couponsListContainer.firstChild){
+        couponsListContainer.removeChild(couponsListContainer.firstChild);
     }
+    // Create one coupon type element for each coupon
+    coupons.map((cp)=> {
+        const couponElement = document.createElement('span'); // Could be div or any other element.
+        couponElement.setAttribute('data-coupon', cp); // Will make the element look like <div data-coupon="ABCDE-FGHIJ-KLMNO-PQRST"></div>
+        couponElement.className = "coupon-item";
+        couponElement.innerText = cp;
+        // Bind event listeners...
+        couponElement.onclick = onCouponElementClick;
+        couponsListContainer.appendChild(couponElement);
+    });
+}
+
+const updateCurrentDomain = (domain) => {
+    document.getElementById('currentDomain').innerText = domain;
+}
+
+/**
+ * Copies the coupon code to clipboard on click
+ * @param {Event} evt 
+ */
+const onCouponElementClick = (evt) => {
+    copyToClipboard(evt.target.innerText);
+}
 
 
-    
-    switch (msg.command){
-        case "couponsReceived":
-            // Hey, coupons have been received. Update the interface trough javascript.
-            
-            break;
-        case "domainUpdated":
-            updateCurrentDomain(msg.data.domain)
-            break;
-    }
-});
+/**
+ * Request last fetched coupons from background script
+ */
+const retrieveLatestFetchedCoupon = () => {
+    chrome.runtime.sendMessage({command:'syncCoupon'}, (response)=> {
+        console.log(response.data.coupon)
+        updateAvailableCoupons(response.data.coupon);
+    });
+}
+
+/**
+ * Request last known navigated domain from background script
+ */
+const retrieveCurrentDomain = () => {
+    chrome.runtime.sendMessage({command:'syncDomain'}, (response)=> {
+        updateCurrentDomain(response.data.domain);
+    });
+}
 
 
 
+
+/**
+ * On popup extension loaded (shown)
+ */
 window.addEventListener('load', ()=> {
     // Bind all event listeners to buttons here.
-
-    
+    retrieveLatestFetchedCoupon();
+    retrieveCurrentDomain();
+    chrome.runtime.onMessage.addListener((msg, sender, response) => {
+        switch (msg.command){
+            case "couponsFetched":
+                // Hey, coupons have been received. Update the interface trough javascript.
+                updateAvailableCoupons(response.data.coupon)   
+                break;
+            case "domainUpdated":
+                updateCurrentDomain(response.data.domain)
+                break;
+        }
+    });
 });
 
 
 
 
 
-
+/** Old code */
 var submitCoupon = function(code, desc, domain){
     console.log('submit coupon', {code: code, desc: desc, domain: domain});
     chrome.runtime.sendMessage({command: "post", data: {code: code, desc: desc, domain: domain}}, (response) => {

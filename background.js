@@ -1,8 +1,7 @@
-var LAST_KNOWN_DOMAIN = undefined;
-
-
-
-
+const Environment = {
+    LAST_KNOWN_DOMAIN: undefined,
+    LAST_KNOWN_COUPON: undefined
+}
 
 
 const onUrlChanged = (url) => {
@@ -10,28 +9,42 @@ const onUrlChanged = (url) => {
     
     window.domain = url.replace('http://', '').replace('https://', '').replace('www.', '').split(/[/?#]/)[0];
     
-    if (domain !== LAST_KNOWN_DOMAIN){
+    if (domain !== Environment.LAST_KNOWN_DOMAIN){
         // Here we want to trigger coupon parses if the domain has changed
-        LAST_KNOWN_DOMAIN = domain;
+        Environment.LAST_KNOWN_DOMAIN = domain;
+        
         // Inform the secondary background script that we want to fetch coupons for the current page
-        // chrome.runtime.sendMessage({command: "fetch", data: {domain: domain}}, (result) => {
-        //     // Validate coupons response - did we receive any?
-        //     if (status === "success"){
-        //         console.log('Successfully retrieved coupons')
-        //         chrome.runtime.sendMessage({command:'couponsFetched', data:{ coupons: data.coupons}});
-        //     }
+        fetchCoupons((coupon) => {
+            console.log(coupon)
+            Environment.LAST_KNOWN_COUPON = coupon;
+            // Validate coupons response - did we receive any?
+            if (coupon){
+                console.log('Successfully retrieved coupons');
+                const coupons = Array.isArray(coupon) || [coupon]; // Force into an array, even if it's just one element.
+                chrome.browserAction.setBadgeText({text: coupons.length.toString()}); // Show extension badge suggesting how many coupons there are;
+                chrome.runtime.sendMessage({command:'couponsFetched', data: { coupons: coupon }});
+            }
 
-        // });
-
-        // // Notify domain updated
-        chrome.runtime.sendMessage({command: "domainUpdated", data: {domain: domain}}, (result)=> {
-            
         });
     }
 }
 
 
 
+
+chrome.runtime.onMessage.addListener((msg, sender, response) => {
+    switch (msg.command){
+        case 'syncCoupon':
+            // Return last fetched coupon
+            response({data: { coupon: Environment.LAST_KNOWN_COUPON }});
+            break;
+        case 'syncDomain':
+            response({data: { domain: Environment.LAST_KNOWN_DOMAIN }});
+            break;
+        default:
+            break;
+    }
+});
 
 /**
  * Append an event listener to page updates

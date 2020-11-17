@@ -14,14 +14,20 @@
         <script type="text/javascript" src="app.js"></script>
     </head>
     <body>
+
+        
         <div>
                 <h1> Coupons</h1><hr>
-                
-                <p>Browse coupons below that have been used for <strong>DOMAIN</strong> </p>
-                <p> Click any coupon to copy &amp; use </p>
-                <div> 
-                    <div><span>Coupon name</span> 
+                <div class="welcome-must-navigate-to-show-coupons">
+                    Start navigating around and we'll let you know if we find any coupons! 
                 </div>
+                <div class="available-coupons hide">
+                    <p>Browse coupons below that have been used for <strong id="currentDomain">DOMAIN</strong> </p>
+                    <p> Click any coupon to copy &amp; use </p>
+                    <div id="couponsList"> 
+                    </div>
+                </div>
+                
         </div>
         <!-- Do you have a coupon for this site? -->
 
