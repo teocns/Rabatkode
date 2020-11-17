@@ -16,9 +16,21 @@ const onUrlChanged = (url) => {
   if (domain !== Environment.LAST_KNOWN_DOMAIN) {
     // Here we want to trigger coupon parses if the domain has changed
     Environment.LAST_KNOWN_DOMAIN = domain;
+    let updated = false;
 
+    setTimeout(()=> {
+      if (!updated){
+        chrome.browserAction.setBadgeText({ text: "0" }); // Show extension badge suggesting how many coupons there are;
+        chrome.runtime.sendMessage({
+          command: "couponsFetched",
+          data: { coupons: [] },
+        });
+        chrome.browserAction.disable();
+      }
+    })
     // Inform the secondary background script that we want to fetch coupons for the current page
     fetchCoupons((coupons) => {
+      updated = true;
       Environment.LAST_KNOWN_COUPONS = coupons;
       // Validate coupons response - did we receive any?
       if (Array.isArray(coupons)) {
@@ -28,6 +40,14 @@ const onUrlChanged = (url) => {
           command: "couponsFetched",
           data: { coupons },
         });
+      }
+      else{
+        chrome.browserAction.setBadgeText({ text: "0" }); // Show extension badge suggesting how many coupons there are;
+        chrome.runtime.sendMessage({
+          command: "couponsFetched",
+          data: { coupons: [] },
+        });
+        chrome.browserAction.disable();
       }
     });
   }
@@ -91,6 +111,13 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
     tabId === Environment.OBSERVING_TAB_ID_TO_CLOSE &&
     changeInfo.status === "complete"
   ) {
-    chrome.tabs.remove(tabId, function () {});
+      chrome.tabs.remove(tabId, function () {});
   }
 });
+
+chrome.browserAction.setBadgeText({ text: "0" }); // Show extension badge suggesting how many coupons there are;
+chrome.runtime.sendMessage({
+  command: "couponsFetched",
+  data: { coupons: [] },
+});
+chrome.browserAction.disable();
