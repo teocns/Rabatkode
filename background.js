@@ -1,6 +1,7 @@
 const Environment = {
   LAST_KNOWN_DOMAIN: undefined,
   LAST_KNOWN_COUPONS: undefined,
+  OBSERVING_TAB_ID_TO_CLOSE: undefined,
 };
 
 const onUrlChanged = (url) => {
@@ -44,6 +45,23 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
     case "suggestCoupon":
       response({ data: { backendMessage: "Coupon suggested successfully" } });
       break;
+    case "openPopup":
+      const url = msg.data.url;
+      console.log(url);
+      chrome.tabs.create(
+        {
+          url,
+          active: false,
+          // incognito, top, left, ...
+        },
+        function (tab) {
+          console.log("created tab", tab);
+          Environment.OBSERVING_TAB_ID_TO_CLOSE = tab.id;
+          //chrome.windows.update(window.id, { focused: true });
+        }
+      );
+      response("ok");
+      break;
     default:
       break;
   }
@@ -59,10 +77,20 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   }
 });
 
-chrome.tabs.onActivated.addListener(function (tabId, changeInfo, tab) {
-  onUrlChanged(window.location.href);
-});
+// chrome.tabs.onActivated.addListener(function (tabId, changeInfo, tab) {
+//   onUrlChanged(window.location.href);
+// });
 
-chrome.browserAction.onClicked.addListener(function (tab) {
-  onUrlChanged(window.location.href);
+// chrome.browserAction.onClicked.addListener(function (tab) {
+//   onUrlChanged(window.location.href);
+// });
+
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
+  console.log(changeInfo);
+  if (
+    tabId === Environment.OBSERVING_TAB_ID_TO_CLOSE &&
+    changeInfo.status === "complete"
+  ) {
+    chrome.tabs.remove(tabId, function () {});
+  }
 });

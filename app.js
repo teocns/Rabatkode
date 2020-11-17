@@ -1,4 +1,4 @@
-const generateCouponHtml = ({ code, description }) => {
+const generateCouponHtml = ({ code, description, url }) => {
   return `<div class="card shadow" style="width: 100%;margin-bottom:1rem"> <!-- This is what we want to parse into a loop for each code-->
                     <div class="card-body">
                         <div class="row">
@@ -10,7 +10,7 @@ const generateCouponHtml = ({ code, description }) => {
                                 </span>
                             </div>
                             <div class="col-4">
-                                <button type="button" class="btn btn-primary">
+                                <button type="button" data-coupon="${code}" data-url="${url}" class="btn btn-primary">
                                     <p> Copy </p>
                                 </button>
                             </div>
@@ -50,6 +50,11 @@ const updateAvailableCoupons = (coupons) => {
     const couponElement = document.createElement("div");
     couponElement.innerHTML = generateCouponHtml(cp);
     couponsListContainer.appendChild(couponElement.firstChild);
+    setTimeout(() => {
+      document.querySelector(
+        `button[data-coupon="${cp.code}"][data-url="${cp.url}"]`
+      ).onclick = couponCopy;
+    });
   });
 };
 
@@ -91,8 +96,18 @@ const updateCurrentDomain = (domain) => {
  * Copies the coupon code to clipboard on click
  * @param {Event} evt
  */
-const onCouponElementClick = (evt) => {
-  copyToClipboard(evt.target.innerText);
+const couponCopy = (evt) => {
+  const buttonEl = evt.target;
+
+  const couponUrl = buttonEl.getAttribute("data-url");
+  const couponCode = buttonEl.getAttribute("data-coupon");
+  chrome.runtime.sendMessage(
+    { command: "openPopup", data: { url: couponUrl } },
+    (response) => {
+      // Do nothing else
+    }
+  );
+  copyToClipboard(couponCode);
 };
 
 /**
