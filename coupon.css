@@ -214,6 +214,15 @@ body {
 
 
 
-.available-coupons.hide{
-    display:'none';
+
+.suggest-coupon-container div{
+    display:'flex';
+    justify-content: center;
+}
+.suggest-coupon-container text{
+    flex:1
+}
+
+.hide{
+    display: none;
 }

@@ -41,6 +41,9 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         case 'syncDomain':
             response({data: { domain: Environment.LAST_KNOWN_DOMAIN }});
             break;
+        case 'suggestCoupon':
+            response({data: { backendMessage: 'Coupon suggested successfully' }});
+            break;
         default:
             break;
     }

@@ -26,8 +26,35 @@ const updateAvailableCoupons = (coupon) => {
     });
 }
 
+
+
+const onCouponSuggest = () => {
+    const couponCode = document.querySelector('#suggestCoupon').value;
+    // Perform proper validation
+    if (!couponCode.length > 3){ 
+        alert('Come on, put in some effort!')
+    }
+    chrome.runtime.sendMessage({command:'suggestCoupon', data: { coupon: couponCode }}, (response)=> {
+        // Successfully suggested coupon... Inform the user?
+        alert(response.data.backendMessage);
+    });
+}
+
 const updateCurrentDomain = (domain) => {
     document.getElementById('currentDomain').innerText = domain;
+
+    const isDomainValid = !!domain;
+    if (isDomainValid){
+        // Remove "Welcome, start navigating..." message;
+        document.querySelector('.welcome-must-navigate-to-show-coupons').classList.add('hide');
+        // Show the other container (with coupons and stuff)
+        document.querySelector('.available-coupons').classList.remove('hide');
+    }
+    else{
+        // Do the opposite 
+        document.querySelector('.welcome-must-navigate-to-show-coupons').classList.remove('hide');
+        document.querySelector('.available-coupons').classList.add('hide');
+    }
 }
 
 /**
@@ -61,6 +88,7 @@ const retrieveCurrentDomain = () => {
 
 
 
+
 /**
  * On popup extension loaded (shown)
  */
@@ -68,6 +96,7 @@ window.addEventListener('load', ()=> {
     // Bind all event listeners to buttons here.
     retrieveLatestFetchedCoupon();
     retrieveCurrentDomain();
+    document.querySelector('#suggestCouponButton').onclick = onCouponSuggest;
     chrome.runtime.onMessage.addListener((msg, sender, response) => {
         switch (msg.command){
             case "couponsFetched":
