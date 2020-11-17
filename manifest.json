@@ -1,7 +1,11 @@
 {
-    "name": "Rabatkode finder",
+    "name": "Rabatta",
     "version": "0.1",
-    "description": "Vi finder nogle skide gode rabatkoder",
+    "description": "Rabatta er et værktøj lavet til at finde de bedste rabatkoder når du browser danske webshops",
+    "icons": 
+    { 
+        "16": "/images/icon.png"
+    },
     "permissions": [
         "activeTab",
         "<all_urls>",
