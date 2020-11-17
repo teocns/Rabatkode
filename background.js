@@ -25,7 +25,7 @@ const onUrlChanged = (url) => {
           command: "couponsFetched",
           data: { coupons: [] },
         });
-        chrome.browserAction.disable();
+        
       }
     })
     // Inform the secondary background script that we want to fetch coupons for the current page
@@ -47,7 +47,7 @@ const onUrlChanged = (url) => {
           command: "couponsFetched",
           data: { coupons: [] },
         });
-        chrome.browserAction.disable();
+        
       }
     });
   }
@@ -120,4 +120,3 @@ chrome.runtime.sendMessage({
   command: "couponsFetched",
   data: { coupons: [] },
 });
-chrome.browserAction.disable();
